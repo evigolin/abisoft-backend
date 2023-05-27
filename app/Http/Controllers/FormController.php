@@ -13,7 +13,12 @@ class FormController extends Controller
      */
     public function index()
     {
-        //
+        $list = Form::all();
+
+        return response()->json([
+            'success'=> true,
+            'list'=> $list
+        ], 200);
     }
 
     /**
@@ -69,7 +74,12 @@ class FormController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $data = Form::find($id);
+
+        return response()->json([
+            'success'=>true,
+            'data'=> $data
+        ], 200);
     }
 
     /**
@@ -85,7 +95,39 @@ class FormController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'nameComplete' => 'required|max:250',
+            'age' => 'required',
+            'birthdate' => 'required',
+            'registrationDate' => 'required',
+            'cost' => 'required',
+        ]);
+
+        if($validator->fails()) {
+          return response()->json(['success'=> false, 'error'=> $validator->messages()], 400);
+        }
+    
+        DB::beginTransaction();
+
+        try {
+            $form = Form::find($id);
+            $form->nameComplete = $request->nameComplete;
+            $form->age = $request->age;
+            $form->birthdate = $request->birthdate;
+            $form->registrationDate = $request->registrationDate;
+            $form->cost = $request->cost;
+            $form->save();
+
+          DB::commit();
+        } catch (\Exception $e) {
+          DB::rollback();
+          $message = $e->getMessage();
+          return response()->json(['success'=> false, 'error'=> $message], 500);
+        }
+
+        return response()->json(['success'=>true,'message'=>'Actualizado con exito!!',
+          'data'=> $form
+          ], 200);
     }
 
     /**
@@ -93,6 +135,9 @@ class FormController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $form = Form::find($id);
+        $form->delete();
+
+        return response()->json(['success'=> true,'message'=> 'Eliminado con exito!!'], 200);
     }
 }

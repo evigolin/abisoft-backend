@@ -20,3 +20,7 @@ use App\Http\Controllers\FormController;
 // });
 
 Route::post('/data/add', [FormController::class, 'store']);
+Route::get('/data', [FormController::class, 'index']);
+Route::get('/data/{id}', [FormController::class, 'show']);
+Route::put('/data/update/{id}', [FormController::class, 'update']);
+Route::delete('/data/delete/{id}', [FormController::class, 'destroy']);
